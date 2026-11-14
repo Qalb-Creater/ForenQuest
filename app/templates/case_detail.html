@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ case.title }} | ForenQuest</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .detail-container {
+            max-width: 950px;
+            margin: 45px auto;
+            padding: 25px;
+        }
+
+        .detail-section {
+            background: #171d35;
+            border: 1px solid #303958;
+            border-radius: 12px;
+            padding: 22px;
+            margin-top: 20px;
+        }
+
+        .detail-section h2 {
+            color: #c1aaff;
+        }
+
+        .detail-section p,
+        .detail-section li {
+            color: #d1d8e8;
+            line-height: 1.8;
+        }
+
+        .back-link {
+            color: #c1aaff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="detail-container">
+
+    <a class="back-link"
+       href="{{ url_for('case_library') }}">
+        ← Back to Case Library
+    </a>
+
+    <h1>{{ case.title }}</h1>
+
+    <p>
+        <strong>Difficulty:</strong> {{ case.level }}
+    </p>
+
+    <p>
+        <strong>Category:</strong> {{ case.category }}
+    </p>
+
+    <p>
+        <strong>File System:</strong> {{ case.filesystem }}
+    </p>
+
+    <div class="detail-section">
+        <h2>Case Description</h2>
+        <p>{{ case.description }}</p>
+    </div>
+
+    <div class="detail-section">
+        <h2>Investigation Scenario</h2>
+        <p>{{ case.scenario }}</p>
+    </div>
+
+    <div class="detail-section">
+        <h2>Evidence Artifacts</h2>
+        <ul>
+            {% for artifact in case.artifacts %}
+                <li>{{ artifact }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="detail-section">
+        <h2>Learning Objectives</h2>
+        <ul>
+            {% for objective in case.objectives %}
+                <li>{{ objective }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="detail-section">
+        <h2>Recommended Tools</h2>
+        <ul>
+            {% for tool in case.tools %}
+                <li>{{ tool }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
