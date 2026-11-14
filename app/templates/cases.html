@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Library | ForenQuest</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .library-container {
+            max-width: 1150px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 22px;
+            margin-top: 30px;
+        }
+
+        .case-card {
+            background: #171d35;
+            border: 1px solid #303958;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .case-card h2 {
+            color: #ffffff;
+            font-size: 21px;
+        }
+
+        .case-card p {
+            color: #b9c2d8;
+            line-height: 1.6;
+        }
+
+        .case-level {
+            color: #bca8ff;
+            font-weight: bold;
+        }
+
+        .case-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 17px;
+            background: #7555df;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .case-link:hover {
+            background: #9278f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="library-container">
+
+        <a href="{{ url_for('home') }}">← Back to Home</a>
+
+        <h1>Forensic Case Library</h1>
+
+        <p>
+            Explore practical digital forensics investigations.
+            Select a case to view its scenario and learning objectives.
+        </p>
+
+        <div class="case-grid">
+
+            {% for case in cases %}
+
+            <div class="case-card">
+
+                <span class="case-level">
+                    {{ case.level }}
+                </span>
+
+                <h2>{{ case.title }}</h2>
+
+                <p>{{ case.description }}</p>
+
+                <p>
+                    <strong>Category:</strong>
+                    {{ case.category }}
+                </p>
+
+                <a class="case-link"
+                   href="{{ url_for('case_detail', case_id=case.id) }}">
+                    View Case →
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>
