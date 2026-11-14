@@ -1,0 +1,157 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1020;
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 8%;
+    background: #11182b;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    color: #a78bfa;
+}
+
+.nav-links a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-left: 25px;
+}
+
+.nav-links a:hover {
+    color: #a78bfa;
+}
+
+.hero {
+    min-height: 440px;
+    display: flex;
+    align-items: center;
+    padding: 70px 10%;
+    background: linear-gradient(
+        120deg,
+        #11182b,
+        #30205d,
+        #11182b
+    );
+}
+
+.hero-content {
+    max-width: 850px;
+}
+
+.tagline {
+    color: #a78bfa;
+    letter-spacing: 2px;
+    font-size: 13px;
+}
+
+.hero h1 {
+    font-size: 45px;
+    margin: 20px 0;
+    line-height: 1.2;
+}
+
+.hero h1 span {
+    display: block;
+    color: #a78bfa;
+}
+
+.description {
+    max-width: 650px;
+    color: #cbd5e1;
+    margin-bottom: 30px;
+}
+
+.primary-button {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #7c3aed;
+    color: white;
+    text-decoration: none;
+    border-radius: 7px;
+}
+
+.primary-button:hover {
+    background: #6d28d9;
+}
+
+.about, .cases {
+    padding: 65px 8%;
+    text-align: center;
+}
+
+.about p {
+    max-width: 700px;
+    margin: 15px auto;
+    color: #cbd5e1;
+}
+
+.case-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    margin-top: 35px;
+}
+
+.case-card {
+    background: #151e33;
+    border: 1px solid #29344d;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: left;
+}
+
+.case-card h3 {
+    color: #c4b5fd;
+    margin-bottom: 10px;
+}
+
+.case-card p {
+    color: #cbd5e1;
+    margin-bottom: 15px;
+}
+
+.case-card span {
+    color: #a78bfa;
+    font-size: 13px;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #94a3b8;
+    background: #11182b;
+}
+
+@media (max-width: 650px) {
+
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links a {
+        margin: 0 8px;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+    }
+
+    .case-container {
+        grid-template-columns: 1fr;
+    }
+}
