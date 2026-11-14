@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ guide.title }} | ForenQuest</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .guide-detail {
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 25px;
+        }
+
+        .guide-detail a {
+            color: #c1aaff;
+            text-decoration: none;
+        }
+
+        .guide-section {
+            background: #171d35;
+            border: 1px solid #303958;
+            border-radius: 12px;
+            padding: 22px;
+            margin-top: 20px;
+        }
+
+        .guide-section h2 {
+            color: #c1aaff;
+        }
+
+        .guide-section p,
+        .guide-section li {
+            color: #d1d8e8;
+            line-height: 1.8;
+        }
+
+        .step-number {
+            color: #bca8ff;
+            font-weight: bold;
+        }
+
+        .guide-note {
+            color: #b9c2d8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="guide-detail">
+
+    <a href="{{ url_for('guide_library') }}">
+        ← Back to Lab Guides
+    </a>
+
+    <h1>{{ guide.title }}</h1>
+
+    <p>{{ guide.introduction }}</p>
+
+    <div class="guide-section">
+
+        <h2>Recommended Tools</h2>
+
+        <ul>
+            {% for tool in guide.tools %}
+                <li>{{ tool }}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+    <div class="guide-section">
+
+        <h2>Prerequisites</h2>
+
+        <ul>
+            {% for item in guide.prerequisites %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+    <div class="guide-section">
+
+        <h2>Investigation Procedure</h2>
+
+        {% for step in guide.steps %}
+
+            <h3>
+                <span class="step-number">
+                    Step {{ loop.index }}:
+                </span>
+                {{ step.title }}
+            </h3>
+
+            <p>{{ step.instructions }}</p>
+
+        {% endfor %}
+
+    </div>
+
+    <div class="guide-section">
+
+        <h2>Investigation Questions</h2>
+
+        <p class="guide-note">
+            Answer these questions after completing the practical investigation.
+        </p>
+
+        <ol>
+            {% for question in guide.questions %}
+                <li>{{ question }}</li>
+            {% endfor %}
+        </ol>
+
+    </div>
+
+    <div class="guide-section">
+
+        <h2>Investigation Reminder</h2>
+
+        <p>
+            Preserve original evidence, work on verified copies
+            where possible, and document your findings accurately.
+        </p>
+
+    </div>
+     <div class="detail-section">
+
+     <h2>Practical Lab Guide</h2>
+
+     <p>
+        Ready to investigate? Follow the practical
+        instructions for this case.
+     </p>
+
+    <a href="{{ url_for(
+    'guide_library'
+) }}">
+    ← Back to All Lab Guides
+</a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

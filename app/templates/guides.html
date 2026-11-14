@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Guides | ForenQuest</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .guide-container {
+            max-width: 1150px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 22px;
+            margin-top: 30px;
+        }
+
+        .guide-card {
+            background: #171d35;
+            border: 1px solid #303958;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .guide-card h2 {
+            color: #ffffff;
+            font-size: 21px;
+        }
+
+        .guide-card p {
+            color: #b9c2d8;
+            line-height: 1.6;
+        }
+
+        .guide-card a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 17px;
+            background: #7555df;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .guide-card a:hover {
+            background: #9278f0;
+        }
+
+        .guide-back {
+            color: #c1aaff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="guide-container">
+
+    <a class="guide-back" href="{{ url_for('home') }}">
+        ← Back to Home
+    </a>
+
+    <h1>Forensic Learning & Lab Guides</h1>
+
+    <p>
+        Follow structured practical instructions to learn
+        digital forensic investigation techniques.
+    </p>
+
+    <div class="guide-grid">
+
+        {% for guide in guides %}
+
+        <div class="guide-card">
+
+            <h2>{{ guide.title }}</h2>
+
+            <p>{{ guide.introduction }}</p>
+
+            <p>
+                <strong>Practical Steps:</strong>
+                {{ guide.steps|length }}
+            </p>
+
+            <a href="{{ url_for(
+                'guide_detail',
+                case_id=guide.case_id
+            ) }}">
+                Open Lab Guide →
+            </a>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+</body>
+</html>
