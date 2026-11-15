@@ -215,6 +215,24 @@
         </div>
 
     </form>
+ 
+<div class="form-section">
+    <h2>Investigation Report</h2>
+
+    <p class="reminder">
+        Your investigation report includes your case details,
+        findings, evidence notes, and answers.
+        Save your investigation before downloading the report.
+    </p>
+
+    <a
+        href="{{ url_for('download_investigation_report', case_id=case.id) }}"
+        class="save-button"
+        style="display: inline-block; text-decoration: none;"
+    >
+        Download PDF Report
+    </a>
+</div>
 
 </div>
 
