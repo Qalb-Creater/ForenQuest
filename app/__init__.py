@@ -281,5 +281,39 @@ def create_app():
             download_name=filename,
             mimetype="application/pdf"
         )
+    # Student Dashboard
+    @app.route("/dashboard")
+    def student_dashboard():
 
+        # Create a temporary student identity if needed
+        if "student_id" not in session:
+            session["student_id"] = str(uuid.uuid4())
+
+        student_id = session["student_id"]
+
+        db = get_db()
+
+        # Get all saved investigations for this student
+        saved_records = db.execute("""
+            SELECT case_id, updated_at
+            FROM investigations
+            WHERE student_id = ?
+            ORDER BY updated_at DESC
+        """, (student_id,)).fetchall()
+
+        saved_case_ids = [
+            record["case_id"] for record in saved_records
+        ]
+
+        total_cases = len(CASES)
+        saved_count = len(saved_records)
+
+        return render_template(
+            "dashboard.html",
+            cases=CASES,
+            total_cases=total_cases,
+            saved_count=saved_count,
+            saved_case_ids=saved_case_ids,
+            saved_records=saved_records
+        )
     return app
