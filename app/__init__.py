@@ -1,4 +1,4 @@
-
+import os
 import json
 import uuid
 from app.verification import calculate_sha256, verify_sha256
@@ -24,7 +24,15 @@ from app.database import init_db, get_db
 def create_app():
     app = Flask(__name__)
 
-    app.config["SECRET_KEY"] = "change-this-development-key"
+    app.config["SECRET_KEY"] = os.environ.get(
+        "SECRET_KEY",
+        "dev-only-change-this-key-before-deployment"
+    )
+
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["SESSION_COOKIE_SECURE"] = False
+    app.config["PERMANENT_SESSION_LIFETIME"] = 1800
 
     # Initialize SQLite database
     init_db(app)
@@ -329,13 +337,31 @@ def create_app():
             email = request.form.get("email", "").strip().lower()
             password = request.form.get("password", "")
 
+            
             if not username or not email or not password:
                 flash("All fields are required.")
+                return redirect(url_for("register"))
+
+            if len(username) < 3 or len(username) > 30:
+                flash("Username must be between 3 and 30 characters.")
+                return redirect(url_for("register"))
+
+            if not username.replace("_", "").isalnum():
+                flash("Username can contain only letters, numbers and underscores.")
+                return redirect(url_for("register"))
+
+            if len(email) > 254 or "@" not in email:
+                flash("Please enter a valid email address.")
                 return redirect(url_for("register"))
 
             if len(password) < 8:
                 flash("Password must contain at least 8 characters.")
                 return redirect(url_for("register"))
+
+            if len(password) > 128:
+                flash("Password cannot exceed 128 characters.")
+                return redirect(url_for("register"))
+
 
             db = get_db()
 
@@ -388,7 +414,7 @@ def create_app():
             session.clear()
             session["user_id"] = user["id"]
             session["username"] = user["username"]
-
+            session.permanent = True
             flash("Login successful!")
             return redirect(url_for("student_dashboard"))
 
