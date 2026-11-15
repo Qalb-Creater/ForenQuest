@@ -1,7 +1,7 @@
 
 import json
 import uuid
-
+from app.verification import calculate_sha256, verify_sha256
 from flask import (
     Flask,
     render_template,
@@ -174,6 +174,48 @@ def create_app():
             guide=selected_guide,
             record=saved_record,
             saved_answers=saved_answers
+        )
+
+    # Evidence Verification
+    @app.route("/verification", methods=["GET", "POST"])
+    def evidence_verification():
+
+        calculated_hash = None
+        reference_hash = ""
+        verification_result = None
+        filename = None
+        error = None
+
+        if request.method == "POST":
+
+            uploaded_file = request.files.get("evidence_file")
+            reference_hash = request.form.get(
+                "reference_hash", ""
+            ).strip()
+
+            if not uploaded_file or not uploaded_file.filename:
+                error = "Please select an evidence file."
+
+            else:
+                filename = uploaded_file.filename
+
+                calculated_hash = calculate_sha256(
+                    uploaded_file.stream
+                )
+
+                if reference_hash:
+                    verification_result = verify_sha256(
+                        calculated_hash,
+                        reference_hash
+                    )
+
+        return render_template(
+            "verification.html",
+            calculated_hash=calculated_hash,
+            reference_hash=reference_hash,
+            verification_result=verification_result,
+            filename=filename,
+            error=error
         )
 
     return app

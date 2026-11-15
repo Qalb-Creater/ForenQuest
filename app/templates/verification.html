@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Evidence Verification | ForenQuest</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .verification-container {
+            max-width: 850px;
+            margin: 45px auto;
+            padding: 25px;
+        }
+
+        .verification-card {
+            background: #171d35;
+            border: 1px solid #303958;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 22px;
+        }
+
+        h1, h2 {
+            color: #c1aaff;
+        }
+
+        p {
+            color: #d1d8e8;
+            line-height: 1.7;
+        }
+
+        label {
+            display: block;
+            margin: 20px 0 8px;
+            color: #e5e7eb;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #39445e;
+            border-radius: 7px;
+            background: #0b1020;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 22px;
+            padding: 13px 22px;
+            background: #7045c7;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #865ce0;
+        }
+
+        .result {
+            margin-top: 22px;
+            padding: 18px;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .match {
+            background: #14532d;
+            border: 1px solid #22c55e;
+        }
+
+        .mismatch {
+            background: #7f1d1d;
+            border: 1px solid #ef4444;
+        }
+
+        .error {
+            background: #7f1d1d;
+            padding: 12px;
+            border-radius: 7px;
+        }
+
+        .hash-value {
+            word-break: break-all;
+            color: #c4b5fd;
+            font-family: monospace;
+        }
+
+        .back-link {
+            color: #c1aaff;
+            text-decoration: none;
+        }
+
+        .info {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="verification-container">
+
+    <a class="back-link" href="{{ url_for('home') }}">
+        ← Back to Home
+    </a>
+
+    <h1>Evidence Verification</h1>
+
+    <p>
+        Verify the integrity of forensic evidence by calculating
+        and comparing its SHA-256 hash.
+    </p>
+
+    <div class="verification-card">
+
+        <h2>Upload Evidence</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <label for="evidence_file">
+                Select Evidence File
+            </label>
+
+            <input
+                type="file"
+                id="evidence_file"
+                name="evidence_file"
+                required
+            >
+
+            <label for="reference_hash">
+                Reference SHA-256 Hash (Optional)
+            </label>
+
+            <input
+                type="text"
+                id="reference_hash"
+                name="reference_hash"
+                value="{{ reference_hash }}"
+                placeholder="Enter the original 64-character hash"
+            >
+
+            <p class="info">
+                Leave the reference hash empty if you only want
+                to calculate the file's SHA-256 hash.
+            </p>
+
+            <button type="submit">
+                Calculate & Verify
+            </button>
+
+        </form>
+
+        {% if error %}
+            <div class="result error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if calculated_hash %}
+
+            <div class="result">
+                <h2>Verification Details</h2>
+
+                <p>
+                    <strong>File Name:</strong> {{ filename }}
+                </p>
+
+                <p><strong>Calculated SHA-256:</strong></p>
+
+                <p class="hash-value">
+                    {{ calculated_hash }}
+                </p>
+            </div>
+
+            {% if reference_hash %}
+
+                {% if verification_result %}
+                    <div class="result match">
+                        <h2>HASH MATCH</h2>
+                        <p>
+                            The calculated hash matches the
+                            reference hash. The file contents
+                            match the supplied reference.
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="result mismatch">
+                        <h2>HASH MISMATCH</h2>
+                        <p>
+                            The calculated hash does not match
+                            the supplied reference hash.
+                            The file contents differ from the
+                            reference.
+                        </p>
+                    </div>
+                {% endif %}
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+
+    <div class="verification-card">
+        <h2>Why SHA-256?</h2>
+
+        <p>
+            SHA-256 generates a 256-bit cryptographic digest
+            represented by 64 hexadecimal characters.
+            Even a small change in file contents normally
+            produces a different hash.
+        </p>
+
+        <p class="info">
+            Always preserve the original evidence and document
+            when and how its reference hash was obtained.
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>
