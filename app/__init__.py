@@ -2,6 +2,8 @@
 import json
 import uuid
 from app.verification import calculate_sha256, verify_sha256
+from flask import send_file
+from app.reports import create_investigation_pdf
 from flask import (
     Flask,
     render_template,
@@ -216,6 +218,68 @@ def create_app():
             verification_result=verification_result,
             filename=filename,
             error=error
+        )
+
+    # Investigation PDF Report
+    @app.route("/report/<case_id>")
+    def download_investigation_report(case_id):
+
+        selected_case = next(
+            (case for case in CASES if case["id"] == case_id),
+            None
+        )
+
+        selected_guide = next(
+            (guide for guide in GUIDES
+             if guide["case_id"] == case_id),
+            None
+        )
+
+        if selected_case is None or selected_guide is None:
+            abort(404)
+
+        if "student_id" not in session:
+            flash("Please save an investigation before generating a report.")
+            return redirect(
+                url_for(
+                    "investigation_workspace",
+                    case_id=case_id
+                )
+            )
+
+        db = get_db()
+
+        saved_record = db.execute("""
+            SELECT *
+            FROM investigations
+            WHERE student_id = ? AND case_id = ?
+        """, (
+            session["student_id"],
+            case_id
+        )).fetchone()
+
+        if saved_record is None:
+            flash("No saved investigation found. Please save your work first.")
+            return redirect(
+                url_for(
+                    "investigation_workspace",
+                    case_id=case_id
+                )
+            )
+
+        pdf_buffer = create_investigation_pdf(
+            selected_case,
+            saved_record,
+            selected_guide
+        )
+
+        filename = f"ForenQuest_Report_{case_id}.pdf"
+
+        return send_file(
+            pdf_buffer,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/pdf"
         )
 
     return app
