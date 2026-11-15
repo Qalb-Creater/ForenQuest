@@ -4,6 +4,7 @@ import uuid
 from app.verification import calculate_sha256, verify_sha256
 from flask import send_file
 from app.reports import create_investigation_pdf
+from app.auth import hash_password, verify_password
 from flask import (
     Flask,
     render_template,
@@ -89,11 +90,13 @@ def create_app():
         if selected_case is None or selected_guide is None:
             abort(404)
 
-        # Temporary browser-based student identity
-        if "student_id" not in session:
-            session["student_id"] = str(uuid.uuid4())
+               # Require student login
+        if "user_id" not in session:
+            flash("Please log in to access the investigation workspace.")
+            return redirect(url_for("login"))
 
-        student_id = session["student_id"]
+        # Use the logged-in student's account ID
+        student_id = str(session["user_id"])
 
         db = get_db()
 
@@ -238,14 +241,10 @@ def create_app():
         if selected_case is None or selected_guide is None:
             abort(404)
 
-        if "student_id" not in session:
-            flash("Please save an investigation before generating a report.")
-            return redirect(
-                url_for(
-                    "investigation_workspace",
-                    case_id=case_id
-                )
-            )
+               # Require student login
+        if "user_id" not in session:
+            flash("Please log in to download your investigation report.")
+            return redirect(url_for("login"))
 
         db = get_db()
 
@@ -253,8 +252,8 @@ def create_app():
             SELECT *
             FROM investigations
             WHERE student_id = ? AND case_id = ?
-        """, (
-            session["student_id"],
+                """, (
+            str(session["user_id"]),
             case_id
         )).fetchone()
 
@@ -281,19 +280,21 @@ def create_app():
             download_name=filename,
             mimetype="application/pdf"
         )
+   
     # Student Dashboard
     @app.route("/dashboard")
     def student_dashboard():
 
-        # Create a temporary student identity if needed
-        if "student_id" not in session:
-            session["student_id"] = str(uuid.uuid4())
+        # Require student login
+        if "user_id" not in session:
+            flash("Please log in to access your dashboard.")
+            return redirect(url_for("login"))
 
-        student_id = session["student_id"]
+        # Use the logged-in student's account ID
+        student_id = str(session["user_id"])
 
         db = get_db()
 
-        # Get all saved investigations for this student
         saved_records = db.execute("""
             SELECT case_id, updated_at
             FROM investigations
@@ -316,4 +317,91 @@ def create_app():
             saved_case_ids=saved_case_ids,
             saved_records=saved_records
         )
+
+        
+    # Student Registration
+    @app.route("/register", methods=["GET", "POST"])
+    def register():
+
+        if request.method == "POST":
+
+            username = request.form.get("username", "").strip()
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
+
+            if not username or not email or not password:
+                flash("All fields are required.")
+                return redirect(url_for("register"))
+
+            if len(password) < 8:
+                flash("Password must contain at least 8 characters.")
+                return redirect(url_for("register"))
+
+            db = get_db()
+
+            existing_user = db.execute("""
+                SELECT id FROM users
+                WHERE username = ? OR email = ?
+            """, (username, email)).fetchone()
+
+            if existing_user:
+                flash("Username or email already exists.")
+                return redirect(url_for("register"))
+
+            password_hash = hash_password(password)
+
+            db.execute("""
+                INSERT INTO users (username, email, password_hash)
+                VALUES (?, ?, ?)
+            """, (username, email, password_hash))
+
+            db.commit()
+
+            flash("Registration successful! Please log in.")
+            return redirect(url_for("login"))
+
+        return render_template("register.html")
+
+
+    # Student Login
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+
+        if request.method == "POST":
+
+            username = request.form.get("username", "").strip()
+            password = request.form.get("password", "")
+
+            db = get_db()
+
+            user = db.execute("""
+                SELECT * FROM users
+                WHERE username = ?
+            """, (username,)).fetchone()
+
+            if user is None or not verify_password(
+                user["password_hash"], password
+            ):
+                flash("Invalid username or password.")
+                return redirect(url_for("login"))
+
+            session.clear()
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+
+            flash("Login successful!")
+            return redirect(url_for("student_dashboard"))
+
+        return render_template("login.html")
+
+
+    # Student Logout
+    @app.route("/logout")
+    def logout():
+
+        session.clear()
+
+        flash("You have been logged out.")
+        return redirect(url_for("login"))
+
     return app
