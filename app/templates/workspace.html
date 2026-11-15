@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investigation Workspace | ForenQuest</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #0b1020;
+            color: #e5e7eb;
+        }
+
+        .workspace-container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .back-link {
+            color: #a78bfa;
+            text-decoration: none;
+        }
+
+        h1 {
+            margin-top: 25px;
+            color: #c4b5fd;
+        }
+
+        .intro, .form-section {
+            background: #151d32;
+            padding: 22px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid #29344d;
+        }
+
+        h2 {
+            color: #c4b5fd;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 18px 0 8px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #39445e;
+            border-radius: 7px;
+            background: #0b1020;
+            color: white;
+            font-size: 15px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .question {
+            margin-top: 22px;
+        }
+
+        .save-button {
+            margin-top: 25px;
+            padding: 13px 25px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .save-button:hover {
+            background: #6d28d9;
+        }
+
+        .message {
+            padding: 12px;
+            background: #14532d;
+            color: #dcfce7;
+            border-radius: 7px;
+            margin-top: 15px;
+        }
+
+        .reminder {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="workspace-container">
+
+    <a class="back-link" href="{{ url_for('case_detail', case_id=case.id) }}">
+        ← Back to Case Details
+    </a>
+
+    <h1>Investigation Workspace</h1>
+
+    <div class="intro">
+        <h2>{{ case.title }}</h2>
+
+        <p>
+            Use this workspace to document your forensic investigation,
+            record evidence observations, and answer the investigation
+            questions.
+        </p>
+
+        <p><strong>Difficulty:</strong> {{ case.level }}</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <div class="form-section">
+            <h2>Investigator Information</h2>
+
+            <label for="investigator_name">Investigator Name</label>
+
+            <input
+                type="text"
+                id="investigator_name"
+                name="investigator_name"
+                value="{{ record['investigator_name'] if record else '' }}"
+                placeholder="Enter your name"
+            >
+        </div>
+
+        <div class="form-section">
+            <h2>Investigation Findings</h2>
+
+            <p class="reminder">
+                Describe what you discovered during the investigation.
+            </p>
+
+            <label for="findings">Your Findings</label>
+
+            <textarea
+                id="findings"
+                name="findings"
+                placeholder="Write your investigation findings here..."
+            >{{ record['findings'] if record else '' }}</textarea>
+        </div>
+
+        <div class="form-section">
+            <h2>Evidence Documentation</h2>
+
+            <p class="reminder">
+                Record important evidence details, filenames, hashes,
+                timestamps, and other observations.
+            </p>
+
+            <label for="evidence_notes">Evidence Notes</label>
+
+            <textarea
+                id="evidence_notes"
+                name="evidence_notes"
+                placeholder="Document your evidence observations here..."
+            >{{ record['evidence_notes'] if record else '' }}</textarea>
+        </div>
+
+        <div class="form-section">
+            <h2>Investigation Questions</h2>
+
+            {% for question in guide.questions %}
+
+                <div class="question">
+
+                    <label for="answer_{{ loop.index0 }}">
+                        Question {{ loop.index }}: {{ question }}
+                    </label>
+
+                    <textarea
+                        id="answer_{{ loop.index0 }}"
+                        name="answer_{{ loop.index0 }}"
+                        placeholder="Write your answer here..."
+                    >{{ saved_answers.get(loop.index0|string, '') }}</textarea>
+
+                </div>
+
+            {% endfor %}
+        </div>
+
+        <div class="form-section">
+            <h2>Investigation Reminder</h2>
+
+            <p class="reminder">
+                Always preserve original evidence. Perform analysis on
+                working copies and document your actions carefully.
+            </p>
+
+            <button type="submit" class="save-button">
+                Save Investigation
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>
