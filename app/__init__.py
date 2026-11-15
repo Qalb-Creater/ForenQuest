@@ -1,13 +1,30 @@
 
-from flask import Flask, render_template, abort
+import json
+import uuid
+
+from flask import (
+    Flask,
+    render_template,
+    abort,
+    request,
+    redirect,
+    url_for,
+    flash,
+    session
+)
+
 from app.cases import CASES
 from app.guides import GUIDES
+from app.database import init_db, get_db
 
 
 def create_app():
     app = Flask(__name__)
 
     app.config["SECRET_KEY"] = "change-this-development-key"
+
+    # Initialize SQLite database
+    init_db(app)
 
     @app.route("/")
     def home():
@@ -50,6 +67,113 @@ def create_app():
         return render_template(
             "guide_detail.html",
             guide=selected_guide
+        )
+
+    # Investigation Workspace
+    @app.route("/workspace/<case_id>", methods=["GET", "POST"])
+    def investigation_workspace(case_id):
+
+        selected_case = next(
+            (case for case in CASES if case["id"] == case_id),
+            None
+        )
+
+        selected_guide = next(
+            (guide for guide in GUIDES
+             if guide["case_id"] == case_id),
+            None
+        )
+
+        if selected_case is None or selected_guide is None:
+            abort(404)
+
+        # Temporary browser-based student identity
+        if "student_id" not in session:
+            session["student_id"] = str(uuid.uuid4())
+
+        student_id = session["student_id"]
+
+        db = get_db()
+
+        if request.method == "POST":
+
+            investigator_name = request.form.get(
+                "investigator_name", ""
+            )
+
+            findings = request.form.get("findings", "")
+
+            evidence_notes = request.form.get(
+                "evidence_notes", ""
+            )
+
+            answers = {}
+
+            for index, question in enumerate(
+                selected_guide["questions"]
+            ):
+                answers[str(index)] = request.form.get(
+                    f"answer_{index}", ""
+                )
+
+            db.execute("""
+                INSERT INTO investigations (
+                    student_id,
+                    case_id,
+                    investigator_name,
+                    findings,
+                    evidence_notes,
+                    answers,
+                    updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+
+                ON CONFLICT(student_id, case_id)
+                DO UPDATE SET
+                    investigator_name = excluded.investigator_name,
+                    findings = excluded.findings,
+                    evidence_notes = excluded.evidence_notes,
+                    answers = excluded.answers,
+                    updated_at = CURRENT_TIMESTAMP
+            """, (
+                student_id,
+                case_id,
+                investigator_name,
+                findings,
+                evidence_notes,
+                json.dumps(answers)
+            ))
+
+            db.commit()
+
+            flash("Investigation progress saved successfully!")
+
+            return redirect(
+                url_for(
+                    "investigation_workspace",
+                    case_id=case_id
+                )
+            )
+
+        saved_record = db.execute("""
+            SELECT *
+            FROM investigations
+            WHERE student_id = ? AND case_id = ?
+        """, (student_id, case_id)).fetchone()
+
+        saved_answers = {}
+
+        if saved_record:
+            saved_answers = json.loads(
+                saved_record["answers"] or "{}"
+            )
+
+        return render_template(
+            "workspace.html",
+            case=selected_case,
+            guide=selected_guide,
+            record=saved_record,
+            saved_answers=saved_answers
         )
 
     return app

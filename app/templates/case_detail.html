@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ case.title }} | ForenQuest</title>
+
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
+
     <style>
         .detail-container {
             max-width: 950px;
@@ -35,6 +37,20 @@
         .back-link {
             color: #c1aaff;
             text-decoration: none;
+        }
+
+        .action-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 11px 18px;
+            background: #7045c7;
+            color: white;
+            text-decoration: none;
+            border-radius: 7px;
+        }
+
+        .action-link:hover {
+            background: #865ce0;
         }
     </style>
 </head>
@@ -97,6 +113,36 @@
                 <li>{{ tool }}</li>
             {% endfor %}
         </ul>
+    </div>
+
+    <!-- Practical Lab Guide -->
+    <div class="detail-section">
+        <h2>Practical Lab Guide</h2>
+
+        <p>
+            Follow the practical instructions and learn
+            how to investigate this forensic case step by step.
+        </p>
+
+        <a class="action-link"
+           href="{{ url_for('guide_detail', case_id=case.id) }}">
+            Open Lab Guide →
+        </a>
+    </div>
+
+    <!-- Investigation Workspace -->
+    <div class="detail-section">
+        <h2>Investigation Workspace</h2>
+
+        <p>
+            Start your investigation, document findings,
+            record evidence, answer questions, and save your progress.
+        </p>
+
+        <a class="action-link"
+           href="{{ url_for('investigation_workspace', case_id=case.id) }}">
+            Open Investigation Workspace →
+        </a>
     </div>
 
 </div>
