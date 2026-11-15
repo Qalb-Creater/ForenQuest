@@ -1,0 +1,92 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Student Dashboard</h1>
+        <p>Track your digital forensics learning and investigation progress.</p>
+    </div>
+
+    <div class="dashboard-stats">
+
+        <div class="stat-card">
+            <h3>Total Cases</h3>
+            <p>{{ total_cases }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Saved Investigations</h3>
+            <p>{{ saved_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Remaining Cases</h3>
+            <p>{{ total_cases - saved_count }}</p>
+        </div>
+
+    </div>
+
+    <div class="dashboard-section">
+        <h2>My Forensic Cases</h2>
+
+        <div class="dashboard-cases">
+
+            {% for case in cases %}
+
+            <div class="dashboard-case-card">
+
+                <h3>{{ case.title }}</h3>
+
+                <p>{{ case.description }}</p>
+
+                <span class="case-level">
+                    {{ case.level }}
+                </span>
+
+                {% if case.id in saved_case_ids %}
+                    <p class="saved-status">Investigation Saved</p>
+                {% else %}
+                    <p class="pending-status">Not Started</p>
+                {% endif %}
+
+                <div class="dashboard-links">
+
+                    <a href="{{ url_for('case_detail', case_id=case.id) }}">
+                        View Case
+                    </a>
+
+                    <a href="{{ url_for('investigation_workspace', case_id=case.id) }}">
+                        Open Workspace
+                    </a>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <div class="dashboard-section">
+        <h2>Quick Access</h2>
+
+        <div class="quick-links">
+
+            <a href="{{ url_for('case_library') }}">Case Library</a>
+
+            <a href="{{ url_for('guide_library') }}">Lab Guides</a>
+
+            <a href="{{ url_for('evidence_verification') }}">
+                Evidence Verification
+            </a>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
