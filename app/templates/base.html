@@ -32,7 +32,10 @@
                    {% if request.endpoint in ['case_library', 'case_detail'] %}aria-current="page"{% endif %}>
                     Cases
                 </a>
-
+<a href="{{ url_for('evidence_library') }}"
+   {% if request.endpoint == 'evidence_library' %}aria-current="page"{% endif %}>
+    Evidence Library
+</a>
                 <a href="{{ url_for('guide_library') }}"
                    {% if request.endpoint in ['guide_library', 'guide_detail'] %}aria-current="page"{% endif %}>
                     Lab Guides
