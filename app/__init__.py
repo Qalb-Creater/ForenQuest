@@ -184,9 +184,10 @@ def create_app():
                     findings,
                     evidence_notes,
                     answers,
+                    status,
                     updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                VALUES (?, ?, ?, ?, ?, ?, 'In Progress', CURRENT_TIMESTAMP)
 
                 ON CONFLICT(student_id, case_id)
                 DO UPDATE SET
@@ -194,6 +195,7 @@ def create_app():
                     findings = excluded.findings,
                     evidence_notes = excluded.evidence_notes,
                     answers = excluded.answers,
+                    status = 'In Progress',
                     updated_at = CURRENT_TIMESTAMP
             """, (
                 student_id,
@@ -236,6 +238,44 @@ def create_app():
             saved_answers=saved_answers
         )
 
+    # Mark an investigation as completed
+    @app.route("/workspace/<case_id>/complete", methods=["POST"])
+    def complete_investigation(case_id):
+
+        selected_case = next(
+            (case for case in CASES if case["id"] == case_id),
+            None
+        )
+
+        if selected_case is None:
+            abort(404)
+
+        if "user_id" not in session:
+            flash("Please log in to update investigation status.")
+            return redirect(url_for("login"))
+
+        student_id = str(session["user_id"])
+
+        db = get_db()
+
+        result = db.execute("""
+            UPDATE investigations
+            SET status = 'Completed',
+                updated_at = CURRENT_TIMESTAMP
+            WHERE student_id = ? AND case_id = ?
+        """, (student_id, case_id))
+
+        db.commit()
+
+        if result.rowcount == 0:
+            flash("Save your investigation before marking it completed.")
+        else:
+            flash("Investigation marked as completed!")
+
+        return redirect(
+            url_for("investigation_workspace", case_id=case_id)
+        )
+        
     # Evidence Verification
     @app.route("/verification", methods=["GET", "POST"])
     def evidence_verification():
@@ -345,32 +385,59 @@ def create_app():
             flash("Please log in to access your dashboard.")
             return redirect(url_for("login"))
 
-        # Use the logged-in student's account ID
+        # Get the logged-in student's account ID
         student_id = str(session["user_id"])
 
         db = get_db()
 
+        # Retrieve all saved investigations and their statuses
         saved_records = db.execute("""
-            SELECT case_id, updated_at
+            SELECT case_id, status, updated_at
             FROM investigations
             WHERE student_id = ?
             ORDER BY updated_at DESC
         """, (student_id,)).fetchall()
 
+        # Get IDs of cases with saved investigations
         saved_case_ids = [
             record["case_id"] for record in saved_records
         ]
 
+        # Map each case to its current investigation status
+        case_statuses = {
+            record["case_id"]: record["status"]
+            for record in saved_records
+        }
+
+        # Calculate dashboard statistics
         total_cases = len(CASES)
+
         saved_count = len(saved_records)
 
+        completed_count = sum(
+            1 for record in saved_records
+            if record["status"] == "Completed"
+        )
+
+        in_progress_count = sum(
+            1 for record in saved_records
+            if record["status"] == "In Progress"
+        )
+
+        not_started_count = total_cases - saved_count
+
+        # Display dashboard
         return render_template(
             "dashboard.html",
             cases=CASES,
             total_cases=total_cases,
             saved_count=saved_count,
             saved_case_ids=saved_case_ids,
-            saved_records=saved_records
+            saved_records=saved_records,
+            case_statuses=case_statuses,
+            completed_count=completed_count,
+            in_progress_count=in_progress_count,
+            not_started_count=not_started_count
         )
 
         

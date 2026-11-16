@@ -10,6 +10,7 @@
         <p>Track your digital forensics learning and investigation progress.</p>
     </div>
 
+    <!-- Progress Statistics -->
     <div class="dashboard-stats">
 
         <div class="stat-card">
@@ -18,23 +19,32 @@
         </div>
 
         <div class="stat-card">
-            <h3>Saved Investigations</h3>
-            <p>{{ saved_count }}</p>
+            <h3>Completed</h3>
+            <p>{{ completed_count }}</p>
         </div>
 
         <div class="stat-card">
-            <h3>Remaining Cases</h3>
-            <p>{{ total_cases - saved_count }}</p>
+            <h3>In Progress</h3>
+            <p>{{ in_progress_count }}</p>
+        </div>
+
+        <div class="stat-card">
+            <h3>Not Started</h3>
+            <p>{{ not_started_count }}</p>
         </div>
 
     </div>
 
+    <!-- Forensic Cases -->
     <div class="dashboard-section">
+
         <h2>My Forensic Cases</h2>
 
         <div class="dashboard-cases">
 
             {% for case in cases %}
+
+            {% set status = case_statuses.get(case.id, 'Not Started') %}
 
             <div class="dashboard-case-card">
 
@@ -46,11 +56,16 @@
                     {{ case.level }}
                 </span>
 
-                {% if case.id in saved_case_ids %}
-                    <p class="saved-status">Investigation Saved</p>
-                {% else %}
-                    <p class="pending-status">Not Started</p>
-                {% endif %}
+                <p class="case-progress">
+                    <strong>Progress:</strong>
+                    {% if status == 'Completed' %}
+                        <span class="status-completed">Completed</span>
+                    {% elif status == 'In Progress' %}
+                        <span class="status-in-progress">In Progress</span>
+                    {% else %}
+                        <span class="status-not-started">Not Started</span>
+                    {% endif %}
+                </p>
 
                 <div class="dashboard-links">
 
@@ -69,9 +84,12 @@
             {% endfor %}
 
         </div>
+
     </div>
 
+    <!-- Quick Access -->
     <div class="dashboard-section">
+
         <h2>Quick Access</h2>
 
         <div class="quick-links">
@@ -84,7 +102,12 @@
                 Evidence Verification
             </a>
 
+            <a href="{{ url_for('evidence_library') }}">
+                Evidence Library
+            </a>
+
         </div>
+
     </div>
 
 </div>
