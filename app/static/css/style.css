@@ -787,3 +787,38 @@ button:disabled {
 .evidence-button:hover {
     background: #6d28d9;
 }
+
+/* =================================
+   INVESTIGATION PROGRESS STATUS
+================================= */
+
+.case-progress {
+    margin-top: 18px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.status-not-started,
+.status-in-progress,
+.status-completed {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-not-started {
+    background: #374151;
+    color: #d1d5db;
+}
+
+.status-in-progress {
+    background: #78350f;
+    color: #fcd34d;
+}
+
+.status-completed {
+    background: #064e3b;
+    color: #6ee7b7;
+}

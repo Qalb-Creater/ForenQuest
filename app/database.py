@@ -42,6 +42,7 @@ def init_db(app):
                 findings TEXT,
                 evidence_notes TEXT,
                 answers TEXT,
+                status TEXT NOT NULL DEFAULT 'In Progress',
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(student_id, case_id)
             )
@@ -55,4 +56,16 @@ def init_db(app):
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+                # Add status column to existing databases if needed.
+        columns = db.execute(
+            "PRAGMA table_info(investigations)"
+        ).fetchall()
+
+        column_names = [column["name"] for column in columns]
+
+        if "status" not in column_names:
+            db.execute("""
+                ALTER TABLE investigations
+                ADD COLUMN status TEXT NOT NULL DEFAULT 'In Progress'
+            """)
         db.commit()
