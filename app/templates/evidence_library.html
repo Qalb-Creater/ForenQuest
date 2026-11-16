@@ -1,0 +1,65 @@
+
+{% extends "base.html" %}
+
+{% block title %}Evidence Library - ForenQuest{% endblock %}
+
+{% block content %}
+
+<section class="page-heading">
+    <h1>Forensic Evidence Library</h1>
+    <p>
+        Explore sample forensic datasets and practice digital
+        investigation techniques.
+    </p>
+</section>
+
+<section class="evidence-grid">
+
+    {% for item in evidence_items %}
+
+    <div class="evidence-card">
+
+        <div class="evidence-card-header">
+            <span class="evidence-type">{{ item.file_type }}</span>
+            <span class="evidence-status">{{ item.status }}</span>
+        </div>
+
+        <h2>{{ item.title }}</h2>
+
+        <p class="evidence-description">
+            {{ item.description }}
+        </p>
+
+        <div class="evidence-details">
+            <p><strong>Related Case:</strong> {{ item.case_title }}</p>
+            <p><strong>Filename:</strong> {{ item.filename }}</p>
+            <p><strong>Size:</strong> {{ item.size }}</p>
+        </div>
+
+        <p class="evidence-purpose">
+            <strong>Learning Purpose:</strong> {{ item.purpose }}
+        </p>
+
+        <a
+            href="{{ url_for('case_detail', case_id=item.case_id) }}"
+            class="evidence-button"
+        >
+            View Related Case
+        </a>
+<a
+    href="{{ url_for('download_evidence', evidence_id=item.id) }}"
+    class="evidence-button"
+>
+    Download Dataset
+</a>
+    </div>
+
+    {% else %}
+
+    <p>No evidence datasets are available yet.</p>
+
+    {% endfor %}
+
+</section>
+
+{% endblock %}

@@ -2,18 +2,21 @@ import os
 import json
 import uuid
 from app.verification import calculate_sha256, verify_sha256
-from flask import send_file
 from app.reports import create_investigation_pdf
 from app.auth import hash_password, verify_password
+from app.evidence import EVIDENCE
 from flask import (
     Flask,
     render_template,
-    abort,
     request,
     redirect,
     url_for,
+    session,
     flash,
-    session
+    send_file,
+    send_from_directory,
+    current_app,
+    abort
 )
 
 from app.cases import CASES
@@ -44,6 +47,7 @@ def create_app():
     @app.route("/cases")
     def case_library():
         return render_template("cases.html", cases=CASES)
+    
 
     @app.route("/cases/<case_id>")
     def case_detail(case_id):
@@ -79,7 +83,50 @@ def create_app():
             "guide_detail.html",
             guide=selected_guide
         )
+    @app.route("/evidence")
+    def evidence_library():
+        evidence_items = []
 
+        for item in EVIDENCE:
+            matching_case = next(
+                (
+                    case for case in CASES
+                    if case["id"] == item["case_id"]
+                ),
+                None
+            )
+
+            if matching_case:
+                evidence_items.append({
+                    **item,
+                    "case_title": matching_case["title"]
+                })
+
+        return render_template(
+            "evidence_library.html",
+            evidence_items=evidence_items
+        )
+        
+    @app.route("/evidence/download/<evidence_id>")
+    def download_evidence(evidence_id):
+
+        evidence_item = next(
+            (
+                item for item in EVIDENCE
+                if item["id"] == evidence_id
+            ),
+            None
+        )
+
+        if evidence_item is None:
+            flash("Evidence dataset not found.")
+            return redirect(url_for("evidence_library"))
+
+        return send_from_directory(
+            current_app.static_folder + "/evidence",
+            evidence_item["filename"],
+            as_attachment=True
+        )
     # Investigation Workspace
     @app.route("/workspace/<case_id>", methods=["GET", "POST"])
     def investigation_workspace(case_id):
