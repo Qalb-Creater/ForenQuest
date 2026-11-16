@@ -177,21 +177,48 @@ footer {
     gap: 15px;
 }
 
+/* Main navigation */
+
 .main-nav {
     display: flex;
     flex-wrap: wrap;
-    gap: 24px;
+    align-items: center;
+    gap: 22px;
 }
 
 .main-nav a {
+    position: relative;
     color: #ffffff;
     text-decoration: none;
     font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 .main-nav a:hover {
     color: #a78bfa;
 }
+
+/* Active page */
+
+.main-nav a[aria-current="page"] {
+    color: #a78bfa;
+    font-weight: 700;
+}
+
+.main-nav a[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -7px;
+    width: 100%;
+    height: 2px;
+    background: #a78bfa;
+    border-radius: 2px;
+}
+
+
+
 
 .main-content {
     min-height: 75vh;
@@ -206,13 +233,27 @@ footer {
     border-top: 1px solid #29344d;
 }
 
+
+.flash-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .flash-message {
     background: #173b2a;
     color: #9ae6b4;
-    padding: 12px;
+    border: 1px solid #286344;
+    border-left: 4px solid #4ade80;
+    padding: 14px 18px;
     border-radius: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow-wrap: anywhere;
 }
+
 
 /* =================================
    STUDENT DASHBOARD
@@ -547,4 +588,98 @@ footer {
     background: #9333ea;
     color: #ffffff !important;
     transform: translateY(-2px);
+}
+/* Keyboard accessibility */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+/* Keyboard accessibility */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+/* Mobile navigation improvements */
+
+@media (max-width: 700px) {
+
+    .main-header {
+        padding: 18px 5%;
+    }
+
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .main-nav {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 12px 18px;
+    }
+
+    .main-nav a {
+        font-size: 13px;
+    }
+
+    .main-nav a[aria-current="page"]::after {
+        bottom: -4px;
+    }
+
+}
+/* Form focus and accessibility improvements */
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 2px solid #c4b5fd;
+    outline-offset: 3px;
+}
+
+input,
+textarea,
+select,
+button {
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+/* Button interaction improvements */
+
+button:hover,
+.btn:hover,
+.auth-button:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+button:active,
+.btn:active,
+.auth-button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
