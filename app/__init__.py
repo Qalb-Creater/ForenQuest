@@ -31,8 +31,7 @@ from app.guides import GUIDES
 from app.database import init_db, get_db
 from app.activity import log_activity
 
-
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__)
 
     app.config["SECRET_KEY"] = os.environ.get(
@@ -44,6 +43,10 @@ def create_app():
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
     app.config["SESSION_COOKIE_SECURE"] = False
     app.config["PERMANENT_SESSION_LIFETIME"] = 1800
+
+    # Apply test configuration before initializing database
+    if test_config is not None:
+        app.config.update(test_config)
 
     # Initialize SQLite database
     init_db(app)

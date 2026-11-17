@@ -7,12 +7,22 @@ from flask import current_app, g
 
 def get_db():
     if "db" not in g:
-        os.makedirs(current_app.instance_path, exist_ok=True)
 
-        database_path = os.path.join(
-            current_app.instance_path,
-            "forenquest.db"
-        )
+        database_path = current_app.config.get("DATABASE")
+
+        if not database_path:
+            os.makedirs(current_app.instance_path, exist_ok=True)
+
+            database_path = os.path.join(
+                current_app.instance_path,
+                "forenquest.db"
+            )
+
+        else:
+            os.makedirs(
+                os.path.dirname(os.path.abspath(database_path)),
+                exist_ok=True
+            )
 
         g.db = sqlite3.connect(database_path)
         g.db.row_factory = sqlite3.Row
@@ -31,6 +41,7 @@ def init_db(app):
     app.teardown_appcontext(close_db)
 
     with app.app_context():
+
         db = get_db()
 
         # Investigations table
@@ -72,14 +83,12 @@ def init_db(app):
             )
         """)
 
-        # Add status column to existing databases if needed
+        # Add status column if missing
         columns = db.execute(
             "PRAGMA table_info(investigations)"
         ).fetchall()
 
-        column_names = [
-            column["name"] for column in columns
-        ]
+        column_names = [column["name"] for column in columns]
 
         if "status" not in column_names:
             db.execute("""
@@ -87,7 +96,7 @@ def init_db(app):
                 ADD COLUMN status TEXT NOT NULL DEFAULT 'In Progress'
             """)
 
-        # Improve activity history lookup performance
+        # Activity index
         db.execute("""
             CREATE INDEX IF NOT EXISTS idx_activity_student
             ON activity_logs(student_id, created_at)
@@ -106,13 +115,7 @@ def init_db(app):
             )
         """)
 
-        # Improve custody history lookup performance
-        db.execute("""
-            CREATE INDEX IF NOT EXISTS idx_custody_student
-            ON evidence_custody(student_id, created_at)
-        """)
-
-        # Add record_hash to existing custody databases
+        # Add record_hash if missing
         custody_columns = db.execute(
             "PRAGMA table_info(evidence_custody)"
         ).fetchall()
@@ -126,5 +129,11 @@ def init_db(app):
                 ALTER TABLE evidence_custody
                 ADD COLUMN record_hash TEXT
             """)
+
+        # Custody index
+        db.execute("""
+            CREATE INDEX IF NOT EXISTS idx_custody_student
+            ON evidence_custody(student_id, created_at)
+        """)
 
         db.commit()
