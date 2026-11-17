@@ -1,0 +1,92 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Activity History</h1>
+        <p>Review your recent activities and investigation actions.</p>
+    </div>
+
+    <div class="dashboard-section">
+
+        <h2>Recent Activities</h2>
+
+        {% if activities %}
+
+            <div class="activity-list">
+
+                {% for activity in activities %}
+
+                    <div class="activity-card">
+
+                        <div class="activity-icon">
+                            {% if activity['action'] == 'Investigation Completed' %}
+                                <span>✓</span>
+                            {% elif activity['action'] == 'Evidence Downloaded' %}
+                                <span>↓</span>
+                            {% elif activity['action'] == 'Report Downloaded' %}
+                                <span>📄</span>
+                            {% elif activity['action'] == 'Student Logged In' %}
+                                <span>↪</span>
+                            {% elif activity['action'] == 'Student Logged Out' %}
+                                <span>↩</span>
+                            {% elif activity['action'] == 'Account Created' %}
+                                <span>+</span>
+                            {% else %}
+                                <span>•</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="activity-content">
+
+                            <h3>{{ activity['action'] }}</h3>
+
+                            <p>
+                                {{ activity['details'] or 'Activity recorded.' }}
+                            </p>
+
+                            {% if activity['case_id'] %}
+                                <span class="activity-case">
+                                    Case:
+                                    {{ case_titles.get(activity['case_id'], activity['case_id']) }}
+                                </span>
+                            {% endif %}
+
+                            <small class="activity-time">
+                                {{ activity['created_at'] }}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="activity-empty">
+                <h3>No Activities Yet</h3>
+                <p>Your investigation and learning activities will appear here.</p>
+                <a href="{{ url_for('case_library') }}">
+                    Explore Forensic Cases
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="dashboard-section">
+        <a href="{{ url_for('student_dashboard') }}">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

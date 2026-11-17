@@ -33,6 +33,7 @@ def init_db(app):
     with app.app_context():
         db = get_db()
 
+        # Investigations table
         db.execute("""
             CREATE TABLE IF NOT EXISTS investigations (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,6 +48,8 @@ def init_db(app):
                 UNIQUE(student_id, case_id)
             )
         """)
+
+        # Users table
         db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,16 +59,38 @@ def init_db(app):
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-                # Add status column to existing databases if needed.
+
+        # Activity history table
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS activity_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id TEXT NOT NULL,
+                action TEXT NOT NULL,
+                details TEXT,
+                case_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # Add status column to existing databases if needed
         columns = db.execute(
             "PRAGMA table_info(investigations)"
         ).fetchall()
 
-        column_names = [column["name"] for column in columns]
+        column_names = [
+            column["name"] for column in columns
+        ]
 
         if "status" not in column_names:
             db.execute("""
                 ALTER TABLE investigations
                 ADD COLUMN status TEXT NOT NULL DEFAULT 'In Progress'
             """)
+
+        # Improve activity history lookup performance
+        db.execute("""
+            CREATE INDEX IF NOT EXISTS idx_activity_student
+            ON activity_logs(student_id, created_at)
+        """)
+
         db.commit()
