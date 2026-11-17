@@ -36,7 +36,8 @@
    {% if request.endpoint == 'evidence_library' %}aria-current="page"{% endif %}>
     Evidence Library
 </a>
-<a href="{{ url_for('activity_history') }}">
+<a href="{{ url_for('activity_history') }}"
+   {% if request.endpoint == 'activity_history' %}aria-current="page"{% endif %}>
     Activity History
 </a>
                 <a href="{{ url_for('guide_library') }}"
@@ -73,7 +74,9 @@
                     </a>
 
                 {% endif %}
-
+<a href="{{ url_for('custody_history') }}">
+    Chain of Custody
+</a>
             </nav>
 
         </div>

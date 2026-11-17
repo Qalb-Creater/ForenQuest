@@ -1,0 +1,117 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Chain of Custody</h1>
+        <p>Review the recorded handling history of your forensic evidence.</p>
+    </div>
+
+    <div class="dashboard-section">
+
+        <h2>Evidence Handling Records</h2>
+
+        {% if custody_records %}
+
+            <div class="custody-list">
+
+                {% for record in custody_records %}
+
+                    <div class="custody-card">
+
+                        <div class="custody-icon">🔐</div>
+
+                        <div class="custody-content">
+
+                            <h3>{{ record['action'] }}</h3>
+
+                            <p>
+                                <strong>Evidence:</strong>
+                                {{ evidence_titles.get(
+                                    record['evidence_id'],
+                                    record['evidence_id']
+                                ) }}
+                            </p>
+
+                            {% if record['case_id'] %}
+                                <p>
+                                    <strong>Case:</strong>
+                                    {{ case_titles.get(
+                                        record['case_id'],
+                                        record['case_id']
+                                    ) }}
+                                </p>
+                            {% endif %}
+
+                            <p>
+                                <strong>Details:</strong>
+                                {{ record['details'] or 'No additional details.' }}
+                            </p>
+
+                            <small>
+                                Recorded: {{ record['created_at'] }}
+                            </small>
+
+                            <small>
+    Record ID: {{ record['id'] }}
+</small>
+
+<div class="custody-verification">
+
+    {% if custody_status.get(record['id']) == true %}
+
+        <span class="integrity-valid">
+            ✓ Integrity Verified
+        </span>
+
+    {% elif custody_status.get(record['id']) == false %}
+
+        <span class="integrity-invalid">
+            ✕ Integrity Check Failed
+        </span>
+
+    {% else %}
+
+        <span class="integrity-missing">
+            ! Hash Not Available
+        </span>
+
+    {% endif %}
+
+</div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="activity-empty">
+                <h3>No Custody Records Yet</h3>
+                <p>Download a forensic evidence dataset to create your first record.</p>
+
+                <a href="{{ url_for('evidence_library') }}">
+                    Open Evidence Library
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="dashboard-section">
+        <a href="{{ url_for('student_dashboard') }}">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

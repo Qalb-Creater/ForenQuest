@@ -93,4 +93,38 @@ def init_db(app):
             ON activity_logs(student_id, created_at)
         """)
 
+        # Evidence Chain of Custody table
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS evidence_custody (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id TEXT NOT NULL,
+                evidence_id TEXT NOT NULL,
+                case_id TEXT,
+                action TEXT NOT NULL,
+                details TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # Improve custody history lookup performance
+        db.execute("""
+            CREATE INDEX IF NOT EXISTS idx_custody_student
+            ON evidence_custody(student_id, created_at)
+        """)
+
+        # Add record_hash to existing custody databases
+        custody_columns = db.execute(
+            "PRAGMA table_info(evidence_custody)"
+        ).fetchall()
+
+        custody_column_names = [
+            column["name"] for column in custody_columns
+        ]
+
+        if "record_hash" not in custody_column_names:
+            db.execute("""
+                ALTER TABLE evidence_custody
+                ADD COLUMN record_hash TEXT
+            """)
+
         db.commit()

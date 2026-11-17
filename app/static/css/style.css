@@ -926,3 +926,95 @@ button:disabled {
         min-width: 34px;
     }
 }
+
+/* =================================
+   CHAIN OF CUSTODY
+================================= */
+
+.custody-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.custody-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    background: #151d32;
+    border: 1px solid #293550;
+    border-radius: 12px;
+}
+
+.custody-card:hover {
+    border-color: #6366f1;
+}
+
+.custody-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #252f4a;
+    border-radius: 50%;
+    font-size: 20px;
+}
+
+.custody-content {
+    flex: 1;
+}
+
+.custody-content h3 {
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.custody-content p {
+    color: #cbd5e1;
+    font-size: 14px;
+    margin-bottom: 7px;
+}
+
+.custody-content small {
+    display: block;
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 7px;
+}
+
+@media (max-width: 600px) {
+    .custody-card {
+        padding: 14px;
+        gap: 10px;
+    }
+}
+
+/* =================================
+   CUSTODY INTEGRITY STATUS
+================================= */
+
+.custody-verification {
+    margin-top: 12px;
+}
+
+.integrity-valid {
+    color: #4ade80;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.integrity-invalid {
+    color: #f87171;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.integrity-missing {
+    color: #fbbf24;
+    font-size: 13px;
+    font-weight: bold;
+}
