@@ -3,6 +3,11 @@ import os
 import json
 import uuid
 from app.activity import log_activity, get_recent_activities
+from app.custody import (
+    record_custody_event,
+    get_custody_history,
+    verify_custody_record
+)
 from flask import (
     Flask,
     render_template,
@@ -156,7 +161,15 @@ def create_app():
                 details=f"Downloaded {evidence_item['title']}",
                 case_id=evidence_item["case_id"]
             )
-
+        # Record evidence handling in Chain of Custody
+        if "user_id" in session:
+            record_custody_event(
+                student_id=session["user_id"],
+                evidence_id=evidence_id,
+                case_id=evidence_item["case_id"],
+                action="Evidence Downloaded",
+                details=f"Downloaded evidence file: {evidence_item['filename']}"
+            )
         return send_from_directory(
             os.path.join(
                 current_app.static_folder,
@@ -505,6 +518,55 @@ def create_app():
             "activity.html",
             activities=activities,
             case_titles=case_titles
+        )
+
+   
+    # =================================
+    # EVIDENCE CHAIN OF CUSTODY
+    # =================================
+
+    @app.route("/custody")
+    def custody_history():
+
+        if "user_id" not in session:
+            flash("Please log in to view custody history.")
+            return redirect(url_for("login"))
+
+        student_id = str(session["user_id"])
+
+        custody_records = get_custody_history(
+            student_id,
+            limit=100
+        )
+
+        evidence_titles = {
+            item["id"]: item["title"]
+            for item in EVIDENCE
+        }
+
+        case_titles = {
+            case["id"]: case["title"]
+            for case in CASES
+        }
+
+        # Verify each record's SHA-256 integrity hash
+        custody_status = {}
+
+        for record in custody_records:
+
+            if record["record_hash"]:
+                custody_status[record["id"]] = (
+                    verify_custody_record(record)
+                )
+            else:
+                custody_status[record["id"]] = None
+
+        return render_template(
+            "custody.html",
+            custody_records=custody_records,
+            evidence_titles=evidence_titles,
+            case_titles=case_titles,
+            custody_status=custody_status
         )
 
     # =================================
